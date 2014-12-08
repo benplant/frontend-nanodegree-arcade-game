@@ -6,6 +6,13 @@ var Enemy = function() {
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
     this.sprite = 'images/enemy-bug.png';
+
+    // Start location
+    this.x = -101;
+    this.y = 60;
+
+    // Default speed
+    this.speed = 15;
 }
 
 // Update the enemy's position, required method for game
@@ -14,6 +21,14 @@ Enemy.prototype.update = function(dt) {
     // You should multiply any movement by the dt parameter
     // which will ensure the game runs at the same speed for
     // all computers.
+
+    // if enemy goes off the right side of the screen,
+    // set the x position back to just off the left side (-101)
+    if (this.x > 505) {
+        this.x = -101;
+    } else {
+        this.x = this.x + dt * this.speed;
+    }
 }
 
 // Draw the enemy on the screen, required method for game
@@ -25,6 +40,13 @@ Enemy.prototype.render = function() {
 // This class requires an update(), render() and
 // a handleInput() method.
 var Player = function() {
+    this.sprite = 'images/char-boy.png';
+
+    // Start location
+    // X spaces * 101
+    // Y spaces * 83 plus a 60 pixel offset
+    this.x = 101 * 2;
+    this.y = 83 * 4 + 60;
 }
 
 // Update the player's position, required method for game
@@ -38,12 +60,26 @@ Player.prototype.render = function() {
 
 // Handle input for player movement
 Player.prototype.handleInput = function() {
+
 }
 
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
-var allEnemies = [new Enemy()];
+
+// Test enemies
+var enemy1 = new Enemy();
+enemy1.speed = 50;
+enemy1.y = 60;
+var enemy2 = new Enemy();
+enemy2.speed = 100;
+enemy2.y = 60 + 83;
+var enemy3 = new Enemy();
+enemy3.speed = 80;
+enemy3.y = 60 + 83 * 2;
+var allEnemies = [enemy1, enemy2, enemy3];
+
+// Test player
 var player = new Player();
 
 // This listens for key presses and sends the keys to your
