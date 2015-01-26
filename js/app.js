@@ -47,10 +47,10 @@ Enemy.prototype.update = function(dt) {
 
     // if enemy goes off the right side of the screen,
     // set the x position back to just off the left side (-101)
-    console.log(Board);
-    console.log(Board.BLOCK_WIDTH);
+    // and reset the speed to a random speed
     if (this.x > Board.BLOCK_WIDTH * 5) {
         this.x = -Board.BLOCK_WIDTH;
+        this.setRandomSpeed();
     } else {
         this.x = this.x + dt * this.speed;
     }
