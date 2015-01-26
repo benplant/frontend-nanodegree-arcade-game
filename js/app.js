@@ -19,8 +19,23 @@ var Enemy = function() {
     this.x = -Board.BLOCK_WIDTH;
     this.y = Board.Y_OFFSET;
 
+    // Default min and max speeds
+    this.min_speed = 50;
+    this.max_speed = 200;
+
     // Default speed
-    this.speed = 15;
+    this.speed = this.max_speed - this.min_speed;
+}
+
+// Update the enemies speed with a random speed
+// between min and max
+// Paramater: min, the minimum value for the random speed
+// Paramater: max, the maximum value for the random speed
+Enemy.prototype.setRandomSpeed = function(min, max) {
+    // Use min and max if provided, otherwise use the defaults
+    var minimum = min || this.min_speed;
+    var maximum = max || this.max_speed;
+    this.speed = Math.floor(Math.random() * (maximum - minimum)) + minimum;
 }
 
 // Update the enemy's position, required method for game
@@ -79,13 +94,13 @@ Player.prototype.handleInput = function() {
 
 // Test enemies
 var enemy1 = new Enemy();
-enemy1.speed = 50;
+enemy1.setRandomSpeed();
 enemy1.y = Board.Y_OFFSET;
 var enemy2 = new Enemy();
-enemy2.speed = 100;
+enemy2.setRandomSpeed();;
 enemy2.y = Board.Y_OFFSET + Board.BLOCK_HEIGHT
 var enemy3 = new Enemy();
-enemy3.speed = 80;
+enemy3.setRandomSpeed();;
 enemy3.y = Board.Y_OFFSET + Board.BLOCK_HEIGHT * 2;
 var allEnemies = [enemy1, enemy2, enemy3];
 
