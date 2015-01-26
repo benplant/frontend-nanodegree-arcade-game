@@ -1,9 +1,13 @@
 var Board = {
+    BOARD_HEIGHT: 606,
+    BOARD_WIDTH: 505,
     // X spaces * 101
     BLOCK_WIDTH: 101,
     // Y spaces * 83 plus a 60 pixel offset
     BLOCK_HEIGHT: 83,
-    Y_OFFSET: 60
+    Y_OFFSET: 60,
+    ENEMY_MIN_SPEED: 50,
+    ENEMY_MAX_SPEED: 200
 };
 
 // Enemies our player must avoid
@@ -20,8 +24,8 @@ var Enemy = function() {
     this.y = Board.Y_OFFSET;
 
     // Default min and max speeds
-    this.min_speed = 50;
-    this.max_speed = 200;
+    this.min_speed = Board.ENEMY_MIN_SPEED;
+    this.max_speed = Board.ENEMY_MAX_SPEED;
 
     // Default speed
     this.speed = this.max_speed - this.min_speed;
@@ -55,7 +59,7 @@ Enemy.prototype.update = function(dt) {
     // if enemy goes off the right side of the screen,
     // set the x position back to just off the left side (-101)
     // and reset the speed to a random speed
-    if (this.x > Board.BLOCK_WIDTH * 5) {
+    if (this.x > Board.BOARD_WIDTH) {
         this.x = -Board.BLOCK_WIDTH;
         this.setRandomSpeed();
         this.setRandomRow();
@@ -92,8 +96,24 @@ Player.prototype.render = function() {
 }
 
 // Handle input for player movement
-Player.prototype.handleInput = function() {
-
+Player.prototype.handleInput = function(key) {
+    if (key == 'up') {
+        if (this.y - Board.BLOCK_HEIGHT > 0) {
+            this.y = this.y - Board.BLOCK_HEIGHT;
+        }
+    } else if (key == 'left') {
+        if (this.x - Board.BLOCK_WIDTH >= 0) {
+            this.x = this.x - Board.BLOCK_WIDTH;
+        }
+    } else if (key == 'right') {
+        if (this.x + Board.BLOCK_WIDTH < Board.BOARD_WIDTH) {
+            this.x = this.x + Board.BLOCK_WIDTH;
+        }
+    } else { // assume 'down' if not one of the above
+        if (this.y + Board.BLOCK_HEIGHT < Board.BOARD_HEIGHT - Board.BLOCK_HEIGHT - Board.Y_OFFSET) {
+            this.y = this.y + Board.BLOCK_HEIGHT;
+        }
+    }
 }
 
 // Now instantiate your objects.
