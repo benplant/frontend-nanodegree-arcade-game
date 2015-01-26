@@ -101,16 +101,14 @@ Player.prototype.handleInput = function() {
 // Place the player object in a variable called player
 
 // Test enemies
-var enemy1 = new Enemy();
-enemy1.setRandomSpeed();
-enemy1.setRandomRow();
-var enemy2 = new Enemy();
-enemy2.setRandomSpeed();;
-enemy2.setRandomRow();
-var enemy3 = new Enemy();
-enemy3.setRandomSpeed();;
-enemy3.setRandomRow();
-var allEnemies = [enemy1, enemy2, enemy3];
+var allEnemies = [];
+var total_enemies = 5;
+for (var i = 0; i < total_enemies; i++) {
+    var enemy = new Enemy();
+    enemy.setRandomSpeed();
+    enemy.setRandomRow();
+    allEnemies.push(enemy);
+}
 
 // Test player
 var player = new Player();
