@@ -58,6 +58,7 @@ Enemy.prototype.update = function(dt) {
     if (this.x > Board.BLOCK_WIDTH * 5) {
         this.x = -Board.BLOCK_WIDTH;
         this.setRandomSpeed();
+        this.setRandomRow();
     } else {
         this.x = this.x + dt * this.speed;
     }
