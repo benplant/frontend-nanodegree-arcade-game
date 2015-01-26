@@ -38,6 +38,13 @@ Enemy.prototype.setRandomSpeed = function(min, max) {
     this.speed = Math.floor(Math.random() * (maximum - minimum)) + minimum;
 }
 
+// Set a random row (Y) for the enemy to appear on
+// rows 0, 1, or 2
+Enemy.prototype.setRandomRow = function() {
+    var row = Math.floor(Math.random() * 3);
+    this.y = Board.Y_OFFSET + Board.BLOCK_HEIGHT * row;
+}
+
 // Update the enemy's position, required method for game
 // Parameter: dt, a time delta between ticks
 Enemy.prototype.update = function(dt) {
@@ -95,13 +102,13 @@ Player.prototype.handleInput = function() {
 // Test enemies
 var enemy1 = new Enemy();
 enemy1.setRandomSpeed();
-enemy1.y = Board.Y_OFFSET;
+enemy1.setRandomRow();
 var enemy2 = new Enemy();
 enemy2.setRandomSpeed();;
-enemy2.y = Board.Y_OFFSET + Board.BLOCK_HEIGHT
+enemy2.setRandomRow();
 var enemy3 = new Enemy();
 enemy3.setRandomSpeed();;
-enemy3.y = Board.Y_OFFSET + Board.BLOCK_HEIGHT * 2;
+enemy3.setRandomRow();
 var allEnemies = [enemy1, enemy2, enemy3];
 
 // Test player
