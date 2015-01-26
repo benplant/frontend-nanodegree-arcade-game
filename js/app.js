@@ -1,3 +1,11 @@
+var Board = {
+    // X spaces * 101
+    BLOCK_WIDTH: 101,
+    // Y spaces * 83 plus a 60 pixel offset
+    BLOCK_HEIGHT: 83,
+    Y_OFFSET: 60
+};
+
 // Enemies our player must avoid
 var Enemy = function() {
     // Variables applied to each of our instances go here,
@@ -7,9 +15,9 @@ var Enemy = function() {
     // a helper we've provided to easily load images
     this.sprite = 'images/enemy-bug.png';
 
-    // Start location
-    this.x = -101;
-    this.y = 60;
+    // Default start location (Just off the left of the board)
+    this.x = -Board.BLOCK_WIDTH;
+    this.y = Board.Y_OFFSET;
 
     // Default speed
     this.speed = 15;
@@ -24,8 +32,10 @@ Enemy.prototype.update = function(dt) {
 
     // if enemy goes off the right side of the screen,
     // set the x position back to just off the left side (-101)
-    if (this.x > 505) {
-        this.x = -101;
+    console.log(Board);
+    console.log(Board.BLOCK_WIDTH);
+    if (this.x > Board.BLOCK_WIDTH * 5) {
+        this.x = -Board.BLOCK_WIDTH;
     } else {
         this.x = this.x + dt * this.speed;
     }
@@ -45,8 +55,8 @@ var Player = function() {
     // Start location
     // X spaces * 101
     // Y spaces * 83 plus a 60 pixel offset
-    this.x = 101 * 2;
-    this.y = 83 * 4 + 60;
+    this.x = Board.BLOCK_WIDTH * 2;
+    this.y = Board.BLOCK_HEIGHT * 4 + Board.Y_OFFSET;
 }
 
 // Update the player's position, required method for game
@@ -70,13 +80,13 @@ Player.prototype.handleInput = function() {
 // Test enemies
 var enemy1 = new Enemy();
 enemy1.speed = 50;
-enemy1.y = 60;
+enemy1.y = Board.Y_OFFSET;
 var enemy2 = new Enemy();
 enemy2.speed = 100;
-enemy2.y = 60 + 83;
+enemy2.y = Board.Y_OFFSET + Board.BLOCK_HEIGHT
 var enemy3 = new Enemy();
 enemy3.speed = 80;
-enemy3.y = 60 + 83 * 2;
+enemy3.y = Board.Y_OFFSET + Board.BLOCK_HEIGHT * 2;
 var allEnemies = [enemy1, enemy2, enemy3];
 
 // Test player
