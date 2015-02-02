@@ -103,6 +103,7 @@ Enemy.prototype.returnToStart = function() {
 // a handleInput() method.
 var Player = function() {
     this.sprite = 'images/char-boy.png';
+    this.current_sprite = 0;
 
     this.returnToStart();
 }
@@ -138,6 +139,9 @@ Player.prototype.handleInput = function(key) {
         if (this.y + Board.BLOCK_HEIGHT < Board.BOARD_HEIGHT - Board.BLOCK_HEIGHT - Board.Y_OFFSET) {
             this.y = this.y + Board.BLOCK_HEIGHT;
         }
+    } else if (key == 'c') {
+        // Change player sprite
+        this.changeCharacter();
     }
 }
 
@@ -175,6 +179,22 @@ Player.prototype.returnToStart = function() {
     this.y = Board.BLOCK_HEIGHT * 4 + Board.Y_OFFSET;
 }
 
+// Change the player's sprite
+Player.prototype.changeCharacter = function() {
+    var sprites = ['images/char-boy.png',
+        'images/char-cat-girl.png',
+        'images/char-horn-girl.png',
+        'images/char-pink-girl.png',
+        'images/char-princess-girl.png']
+    var total_sprites = 5;
+    this.current_sprite = this.current_sprite + 1;
+    if (this.current_sprite >= total_sprites) {
+        this.current_sprite = 0;
+    }
+    console.log(sprites[this.current_sprite]);
+    this.sprite = sprites[this.current_sprite];
+}
+
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
@@ -199,7 +219,8 @@ document.addEventListener('keyup', function(e) {
         37: 'left',
         38: 'up',
         39: 'right',
-        40: 'down'
+        40: 'down',
+        67: 'c'
     };
 
     player.handleInput(allowedKeys[e.keyCode]);
