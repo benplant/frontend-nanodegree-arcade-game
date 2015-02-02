@@ -134,7 +134,7 @@ Player.prototype.handleInput = function(key) {
         if (this.x + Board.BLOCK_WIDTH < Board.BOARD_WIDTH) {
             this.x = this.x + Board.BLOCK_WIDTH;
         }
-    } else { // assume 'down' if not one of the above
+    } else if (key == 'down') {
         if (this.y + Board.BLOCK_HEIGHT < Board.BOARD_HEIGHT - Board.BLOCK_HEIGHT - Board.Y_OFFSET) {
             this.y = this.y + Board.BLOCK_HEIGHT;
         }
