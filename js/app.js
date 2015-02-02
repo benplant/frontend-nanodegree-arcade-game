@@ -79,11 +79,7 @@ Enemy.prototype.render = function() {
 var Player = function() {
     this.sprite = 'images/char-boy.png';
 
-    // Start location
-    // X spaces * 101
-    // Y spaces * 83 plus a 60 pixel offset
-    this.x = Board.BLOCK_WIDTH * 2;
-    this.y = Board.BLOCK_HEIGHT * 4 + Board.Y_OFFSET;
+    this.returnToStart();
 }
 
 // Update the player's position, required method for game
@@ -115,6 +111,15 @@ Player.prototype.handleInput = function(key) {
         }
     }
 }
+
+// Return player to starting position
+Player.prototype.returnToStart = function() {
+    // x position: left side of player is 2 block widths over.
+    this.x = Board.BLOCK_WIDTH * 2;
+    // y position: top side of player is 4 blocks down + an offset.
+    this.y = Board.BLOCK_HEIGHT * 4 + Board.Y_OFFSET;
+}
+
 
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
