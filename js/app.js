@@ -12,7 +12,12 @@ var Board = {
     BLOCK_HEIGHT: 83,
     Y_OFFSET: 60,
     ENEMY_MIN_SPEED: 50,
-    ENEMY_MAX_SPEED: 200
+    ENEMY_MAX_SPEED: 200,
+    PLAYER_SPRITES: ['images/char-boy.png',
+        'images/char-cat-girl.png',
+        'images/char-horn-girl.png',
+        'images/char-pink-girl.png',
+        'images/char-princess-girl.png']
 };
 
 // Enemies our player must avoid
@@ -102,9 +107,14 @@ Enemy.prototype.returnToStart = function() {
 // This class requires an update(), render() and
 // a handleInput() method.
 var Player = function() {
+    // Default sprite settings
     this.sprite = 'images/char-boy.png';
-    this.current_sprite = 0;
+    this.current_sprite_number = 0;
 
+    // Select a random sprite to start
+    this.changeToRandomCharacter();
+
+    // Place player at starting position
     this.returnToStart();
 }
 
@@ -180,19 +190,31 @@ Player.prototype.returnToStart = function() {
 }
 
 // Change the player's sprite
-Player.prototype.changeCharacter = function() {
-    var sprites = ['images/char-boy.png',
-        'images/char-cat-girl.png',
-        'images/char-horn-girl.png',
-        'images/char-pink-girl.png',
-        'images/char-princess-girl.png']
-    var total_sprites = 5;
-    this.current_sprite = this.current_sprite + 1;
-    if (this.current_sprite >= total_sprites) {
-        this.current_sprite = 0;
+Player.prototype.changeCharacter = function(sprite_number) {
+    // Use the defined sprite_number if provided
+    if (sprite_number != null) {
+        this.current_sprite_number = sprite_number;
+    } else {  // otherwise just toggle through the sprites
+        this.current_sprite_number = this.current_sprite_number + 1;
     }
-    console.log(sprites[this.current_sprite]);
-    this.sprite = sprites[this.current_sprite];
+
+    // If the curent value is beyone the range of
+    // available sprites, default to 0.
+    if (this.current_sprite_number >= Board.PLAYER_SPRITES.length) {
+        this.current_sprite_number = 0;
+    }
+
+    this.sprite = Board.PLAYER_SPRITES[this.current_sprite_number];
+}
+
+// Select a random sprite
+Player.prototype.changeToRandomCharacter = function() {
+    // Choose a random sprite number based on the total
+    // available sprites
+    var sprite_number = Math.floor(Math.random() *
+        Board.PLAYER_SPRITES.length);
+
+    this.changeCharacter(sprite_number);
 }
 
 // Now instantiate your objects.
