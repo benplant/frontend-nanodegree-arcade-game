@@ -1,3 +1,8 @@
+// Board object to hold constants for the board
+// and any other default values.
+// This could be made into a more complex classs / function
+// that would allow for different levels to increase
+// the difficulty of the game or level layout details.
 var Board = {
     BOARD_HEIGHT: 606,
     BOARD_WIDTH: 505,
@@ -12,16 +17,9 @@ var Board = {
 
 // Enemies our player must avoid
 var Enemy = function() {
-    // Variables applied to each of our instances go here,
-    // we've provided one for you to get started
-
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
     this.sprite = 'images/enemy-bug.png';
-
-    // Default start location (Just off the left of the board)
-    this.x = -Board.BLOCK_WIDTH;
-    this.y = Board.Y_OFFSET;
 
     // Default min and max speeds
     this.min_speed = Board.ENEMY_MIN_SPEED;
@@ -29,10 +27,12 @@ var Enemy = function() {
 
     // Default speed
     this.speed = this.max_speed - this.min_speed;
+
+    // Set the enemy in a starting position.
+    this.returnToStart();
 }
 
-// Update the enemies speed with a random speed
-// between min and max
+// Update the enemies speed with a random speed between min and max
 // Paramater: min, the minimum value for the random speed
 // Paramater: max, the maximum value for the random speed
 Enemy.prototype.setRandomSpeed = function(min, max) {
@@ -43,7 +43,6 @@ Enemy.prototype.setRandomSpeed = function(min, max) {
 }
 
 // Set a random row (Y) for the enemy to appear on
-// rows 0, 1, or 2
 Enemy.prototype.setRandomRow = function() {
     var row = Math.floor(Math.random() * 3);
     this.y = Board.Y_OFFSET + Board.BLOCK_HEIGHT * row;
@@ -56,13 +55,10 @@ Enemy.prototype.update = function(dt) {
     // which will ensure the game runs at the same speed for
     // all computers.
 
-    // if enemy goes off the right side of the screen,
-    // set the x position back to just off the left side (-101)
-    // and reset the speed to a random speed
+    // if enemy is off the board, return it to the start
+    // and send it back in again.
     if (this.x > Board.BOARD_WIDTH) {
-        this.x = -Board.BLOCK_WIDTH;
-        this.setRandomSpeed();
-        this.setRandomRow();
+        this.returnToStart();
     } else {
         this.x = this.x + dt * this.speed;
     }
@@ -71,6 +67,17 @@ Enemy.prototype.update = function(dt) {
 // Draw the enemy on the screen, required method for game
 Enemy.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+}
+
+// Return the Enemy to a starting position
+Enemy.prototype.returnToStart = function() {
+    // x position: just off the left of the board.
+    this.x = -Board.BLOCK_WIDTH;
+    // Set the y position to a random row
+    this.setRandomRow();
+    // Since this enemy is respawning, give it a
+    // new random speed.
+    this.setRandomSpeed();
 }
 
 // Now write your own player class
@@ -92,7 +99,7 @@ Player.prototype.update = function() {
 
     // Check if the player has won
     if (this.hasWonTheGame()) {
-        this.win();
+        this.wonGame();
     }
 }
 
@@ -106,9 +113,7 @@ Player.prototype.handleInput = function(key) {
     if (key == 'up') {
         // allow all 'up' movements, as a win will be
         // considered anything off the top of the board.
-        //if (this.y - Board.BLOCK_HEIGHT > 0) {
         this.y = this.y - Board.BLOCK_HEIGHT;
-        //}
     } else if (key == 'left') {
         if (this.x - Board.BLOCK_WIDTH >= 0) {
             this.x = this.x - Board.BLOCK_WIDTH;
@@ -124,7 +129,9 @@ Player.prototype.handleInput = function(key) {
     }
 }
 
-// Check whether the player has successfully won the game
+// Check whether the player has successfully won the game.
+// Return true if the player is in a state where they have won.
+// Return false if the player is not in a winning state.
 Player.prototype.hasWonTheGame = function() {
     // Default win is if the player is in the water
     if (this.y <= 0) {
@@ -135,7 +142,7 @@ Player.prototype.hasWonTheGame = function() {
 }
 
 // Action to take when player wins
-Player.prototype.win = function() {
+Player.prototype.wonGame = function() {
     // Let user know they won the game
     alert("You win!");
     // Return player to start
