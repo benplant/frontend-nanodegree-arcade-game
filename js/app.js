@@ -84,6 +84,16 @@ var Player = function() {
 
 // Update the player's position, required method for game
 Player.prototype.update = function() {
+    // Check for collision with enemy
+    if (false) { //anyCollisions()) {
+        // If so, cause the player's death...
+        this.death();
+    }
+
+    // Check if the player has won
+    if (this.hasWonTheGame()) {
+        this.win();
+    }
 }
 
 // Draw the player on the screen, required method for game
@@ -94,9 +104,11 @@ Player.prototype.render = function() {
 // Handle input for player movement
 Player.prototype.handleInput = function(key) {
     if (key == 'up') {
-        if (this.y - Board.BLOCK_HEIGHT > 0) {
-            this.y = this.y - Board.BLOCK_HEIGHT;
-        }
+        // allow all 'up' movements, as a win will be
+        // considered anything off the top of the board.
+        //if (this.y - Board.BLOCK_HEIGHT > 0) {
+        this.y = this.y - Board.BLOCK_HEIGHT;
+        //}
     } else if (key == 'left') {
         if (this.x - Board.BLOCK_WIDTH >= 0) {
             this.x = this.x - Board.BLOCK_WIDTH;
@@ -112,6 +124,30 @@ Player.prototype.handleInput = function(key) {
     }
 }
 
+// Check whether the player has successfully won the game
+Player.prototype.hasWonTheGame = function() {
+    // Default win is if the player is in the water
+    if (this.y <= 0) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+// Action to take when player wins
+Player.prototype.win = function() {
+    // Let user know they won the game
+    alert("You win!");
+    // Return player to start
+    this.returnToStart();
+}
+
+// Action to take on player's death
+Player.prototype.death = function() {
+    // Default is just return the player to the start
+    this.returnToStart();
+}
+
 // Return player to starting position
 Player.prototype.returnToStart = function() {
     // x position: left side of player is 2 block widths over.
@@ -119,7 +155,6 @@ Player.prototype.returnToStart = function() {
     // y position: top side of player is 4 blocks down + an offset.
     this.y = Board.BLOCK_HEIGHT * 4 + Board.Y_OFFSET;
 }
-
 
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
