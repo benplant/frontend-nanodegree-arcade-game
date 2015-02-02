@@ -55,12 +55,30 @@ Enemy.prototype.update = function(dt) {
     // which will ensure the game runs at the same speed for
     // all computers.
 
-    // if enemy is off the board, return it to the start
+    // Check whether enemy has collided with player
+    this.checkForCollisionWithPlayer();
+
+    // If enemy is off the board, return it to the start
     // and send it back in again.
     if (this.x > Board.BOARD_WIDTH) {
         this.returnToStart();
     } else {
         this.x = this.x + dt * this.speed;
+    }
+}
+
+// Check for collision with player
+Enemy.prototype.checkForCollisionWithPlayer = function() {
+// https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection
+// Use BLOCK_HEIGHT for the height value and descrease the width
+// from 101 to 80 for more accurate collision detection.
+    if (this.x < player.x + 80 &&
+        this.x + 80 > player.x &&
+        this.y < player.y + Board.BLOCK_HEIGHT &&
+        Board.BLOCK_HEIGHT + this.y > player.y) {
+        // collision detected!
+        // cause players death
+        player.death();
     }
 }
 
@@ -91,12 +109,6 @@ var Player = function() {
 
 // Update the player's position, required method for game
 Player.prototype.update = function() {
-    // Check for collision with enemy
-    if (false) { //anyCollisions()) {
-        // If so, cause the player's death...
-        this.death();
-    }
-
     // Check if the player has won
     if (this.hasWonTheGame()) {
         this.wonGame();
