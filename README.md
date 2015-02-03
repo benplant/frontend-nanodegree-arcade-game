@@ -13,6 +13,7 @@ make it to the water.
   Move down: down arrow key<br>
   Move left: left arrow key<br>
   Move right: right arrow key<br>
-  Change character - C key<br>
+  Change character: C key<br>
+  Throw a rock: Space bar<br>
 
 Enjoy!
