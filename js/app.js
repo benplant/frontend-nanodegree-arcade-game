@@ -11,6 +11,7 @@ var Board = {
     Y_OFFSET: 60,
     ENEMY_MIN_SPEED: 50,
     ENEMY_MAX_SPEED: 200,
+    ROCK_SPEED: 300,
     PLAYER_SPRITES: ['images/char-boy.png',
         'images/char-cat-girl.png',
         'images/char-horn-girl.png',
@@ -61,6 +62,9 @@ Enemy.prototype.update = function(dt) {
     // Check whether this enemy has collided with player
     this.checkForCollisionWithPlayer();
 
+    // Check whether this enemy has collided with a rock
+    this.checkForCollisionWithRock();
+
     // If this enemy is off the board, return it to the start.
     // Otherwise move forward based on this enemie's speed.
     if (this.x > Board.BOARD_WIDTH) {
@@ -87,6 +91,26 @@ Enemy.prototype.checkForCollisionWithPlayer = function() {
     }
 }
 
+// Check for collision with rock
+Enemy.prototype.checkForCollisionWithRock = function() {
+// Check whether this enemy's bounds overlap with the rock
+// Only need to check if there is currently a rock on screen
+    if (player.rock != null) {
+        if (this.x < player.rock.x + 80 &&
+            this.x + 80 > player.rock.x &&
+            this.y < player.rock.y + Board.BLOCK_HEIGHT &&
+            Board.BLOCK_HEIGHT + this.y > player.rock.y) {
+            // collision detected!
+            // The rock can only hit one enemy
+            // so remove it on collision
+            player.rock = null;
+
+            // return this enemy to starting point.
+            this.returnToStart();
+        }
+    }
+}
+
 // Draw the enemy on the screen, required method for game
 Enemy.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
@@ -110,6 +134,9 @@ var Player = function() {
     this.sprite = 'images/char-boy.png';
     this.currentSpriteNumber = 0;
 
+    // The player can have a rock to throw
+    this.rock = null;
+
     // Select a random sprite to start
     this.changeToRandomCharacter();
 
@@ -118,16 +145,26 @@ var Player = function() {
 }
 
 // Update the player's position, required method for game
-Player.prototype.update = function() {
+Player.prototype.update = function(dt) {
     // Check if the player has won
     if (this.hasWonTheGame()) {
         this.wonGame();
+    }
+
+    // If player has a rock on screen, update it.
+    if (this.rock != null) {
+        this.rock.update(dt);
     }
 }
 
 // Draw the player on the screen, required method for game
 Player.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+
+    // If player has a rock on screen, render it.
+    if (this.rock != null) {
+        this.rock.render();
+    }
 }
 
 // Handle input for player movement
@@ -155,6 +192,9 @@ Player.prototype.handleInput = function(key) {
     } else if (key == 'c') {
         // Change the player sprite image
         this.changeCharacter();
+    } else if (key == 'space') {
+        // Throw a rock
+        this.throwRock();
     }
 }
 
@@ -216,6 +256,41 @@ Player.prototype.changeToRandomCharacter = function() {
     this.changeCharacter(spriteNumber);
 }
 
+// Have the player throw a rock
+Player.prototype.throwRock = function() {
+    // Player can only throw a rock
+    // if there isn't already one on screen.
+    if (this.rock == null) {
+        this.rock = new Rock();
+    }
+}
+
+// Rocks our player can throw
+var Rock = function() {
+    this.sprite = 'images/Rock.png';
+
+    // Rock starts from just above player
+    this.x = player.x;
+    this.y = player.y - 40;
+}
+
+// Update the rock's position
+// Rock moves vertically until off the board
+Rock.prototype.update = function(dt) {
+    // If the rock is off the board, remove it.
+    // Otherwise move upwards based on speed.
+    if (this.y < 0) {
+        player.rock = null;
+    } else {
+        this.y = this.y - dt * Board.ROCK_SPEED;
+    }
+}
+
+// Draw the rock on the screen
+Rock.prototype.render = function() {
+    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+}
+
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
@@ -241,7 +316,8 @@ document.addEventListener('keyup', function(e) {
         38: 'up',
         39: 'right',
         40: 'down',
-        67: 'c'
+        67: 'c',
+        32: 'space'
     };
 
     player.handleInput(allowedKeys[e.keyCode]);
