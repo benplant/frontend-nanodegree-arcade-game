@@ -1,14 +1,12 @@
 // Board object to hold constants for the board
 // and any other default values.
-// This could be made into a more complex classs / function
+// This could be expanded into a more complex classs / function
 // that would allow for different levels to increase
-// the difficulty of the game or level layout details.
+// the difficulty of the game and/or level layout details.
 var Board = {
     BOARD_HEIGHT: 606,
     BOARD_WIDTH: 505,
-    // X spaces * 101
     BLOCK_WIDTH: 101,
-    // Y spaces * 83 plus a 60 pixel offset
     BLOCK_HEIGHT: 83,
     Y_OFFSET: 60,
     ENEMY_MIN_SPEED: 50,
@@ -27,44 +25,44 @@ var Enemy = function() {
     this.sprite = 'images/enemy-bug.png';
 
     // Default min and max speeds
-    this.min_speed = Board.ENEMY_MIN_SPEED;
-    this.max_speed = Board.ENEMY_MAX_SPEED;
+    this.minSpeed = Board.ENEMY_MIN_SPEED;
+    this.maxSpeed = Board.ENEMY_MAX_SPEED;
 
-    // Default speed
-    this.speed = this.max_speed - this.min_speed;
+    // Calculate default speed of this enemy
+    this.speed = this.maxSpeed - this.minSpeed;
 
-    // Set the enemy in a starting position.
+    // Set this enemy in a starting position.
     this.returnToStart();
 }
 
-// Update the enemies speed with a random speed between min and max
-// Paramater: min, the minimum value for the random speed
-// Paramater: max, the maximum value for the random speed
+// Update this enemie's speed with a random speed between min and max
+// Parameter: min, the minimum value for the random speed
+// Parameter: max, the maximum value for the random speed
 Enemy.prototype.setRandomSpeed = function(min, max) {
-    // Use min and max if provided, otherwise use the defaults
-    var minimum = min || this.min_speed;
-    var maximum = max || this.max_speed;
-    this.speed = Math.floor(Math.random() * (maximum - minimum)) + minimum;
+    // Use min and max if provided, otherwise use defaults
+    var minimum = min || this.minSpeed;
+    var maximum = max || this.maxSpeed;
+    this.speed = Math.floor(Math.random() * (maximum - minimum) + minimum);
 }
 
-// Set a random row (Y) for the enemy to appear on
+// Set a random row for this enemy to appear on
 Enemy.prototype.setRandomRow = function() {
     var row = Math.floor(Math.random() * 3);
     this.y = Board.Y_OFFSET + Board.BLOCK_HEIGHT * row;
 }
 
-// Update the enemy's position, required method for game
+// Update this enemy's position, required method for game
 // Parameter: dt, a time delta between ticks
 Enemy.prototype.update = function(dt) {
     // You should multiply any movement by the dt parameter
     // which will ensure the game runs at the same speed for
     // all computers.
 
-    // Check whether enemy has collided with player
+    // Check whether this enemy has collided with player
     this.checkForCollisionWithPlayer();
 
-    // If enemy is off the board, return it to the start
-    // and send it back in again.
+    // If this enemy is off the board, return it to the start.
+    // Otherwise move forward based on this enemie's speed.
     if (this.x > Board.BOARD_WIDTH) {
         this.returnToStart();
     } else {
@@ -74,9 +72,11 @@ Enemy.prototype.update = function(dt) {
 
 // Check for collision with player
 Enemy.prototype.checkForCollisionWithPlayer = function() {
-// https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection
-// Use BLOCK_HEIGHT for the height value and descrease the width
-// from 101 to 80 for more accurate collision detection.
+// Check whether this enemy's bounds overlap with the player
+// Use BLOCK_HEIGHT for both player and enemy heights to ensure
+// that collisions only occur if on the same row.
+// Descrease the widths from 101 to 80 to provide more detailed
+// collision detection rather than just being on the same block.
     if (this.x < player.x + 80 &&
         this.x + 80 > player.x &&
         this.y < player.y + Board.BLOCK_HEIGHT &&
@@ -94,12 +94,11 @@ Enemy.prototype.render = function() {
 
 // Return the Enemy to a starting position
 Enemy.prototype.returnToStart = function() {
-    // x position: just off the left of the board.
+    // Set the x position to just off the left of the board.
     this.x = -Board.BLOCK_WIDTH;
     // Set the y position to a random row
     this.setRandomRow();
-    // Since this enemy is respawning, give it a
-    // new random speed.
+    // Give the enemy a new random speed.
     this.setRandomSpeed();
 }
 
@@ -107,9 +106,9 @@ Enemy.prototype.returnToStart = function() {
 // This class requires an update(), render() and
 // a handleInput() method.
 var Player = function() {
-    // Default sprite settings
+    // Default player sprite settings
     this.sprite = 'images/char-boy.png';
-    this.current_sprite_number = 0;
+    this.currentSpriteNumber = 0;
 
     // Select a random sprite to start
     this.changeToRandomCharacter();
@@ -134,23 +133,27 @@ Player.prototype.render = function() {
 // Handle input for player movement
 Player.prototype.handleInput = function(key) {
     if (key == 'up') {
-        // allow all 'up' movements, as a win will be
-        // considered anything off the top of the board.
+        // Allow all 'up' movements, as a win will be
+        // anything in the water at the top of the board
         this.y = this.y - Board.BLOCK_HEIGHT;
     } else if (key == 'left') {
+        // Ensure player will still be on the board
         if (this.x - Board.BLOCK_WIDTH >= 0) {
             this.x = this.x - Board.BLOCK_WIDTH;
         }
     } else if (key == 'right') {
+        // Ensure player will still be on the board
         if (this.x + Board.BLOCK_WIDTH < Board.BOARD_WIDTH) {
             this.x = this.x + Board.BLOCK_WIDTH;
         }
     } else if (key == 'down') {
-        if (this.y + Board.BLOCK_HEIGHT < Board.BOARD_HEIGHT - Board.BLOCK_HEIGHT - Board.Y_OFFSET) {
+        // Ensure player will still be on the board
+        if (this.y + Board.BLOCK_HEIGHT < Board.BOARD_HEIGHT -
+            Board.BLOCK_HEIGHT - Board.Y_OFFSET) {
             this.y = this.y + Board.BLOCK_HEIGHT;
         }
     } else if (key == 'c') {
-        // Change player sprite
+        // Change the player sprite image
         this.changeCharacter();
     }
 }
@@ -160,11 +163,7 @@ Player.prototype.handleInput = function(key) {
 // Return false if the player is not in a winning state.
 Player.prototype.hasWonTheGame = function() {
     // Default win is if the player is in the water
-    if (this.y <= 0) {
-        return true;
-    } else {
-        return false;
-    }
+    return (this.y <= 0) ? true : false;
 }
 
 // Action to take when player wins
@@ -177,7 +176,7 @@ Player.prototype.wonGame = function() {
 
 // Action to take on player's death
 Player.prototype.death = function() {
-    // Default is just return the player to the start
+    // Default is to just return the player to the start
     this.returnToStart();
 }
 
@@ -189,49 +188,49 @@ Player.prototype.returnToStart = function() {
     this.y = Board.BLOCK_HEIGHT * 4 + Board.Y_OFFSET;
 }
 
-// Change the player's sprite
-Player.prototype.changeCharacter = function(sprite_number) {
-    // Use the defined sprite_number if provided
-    if (sprite_number != null) {
-        this.current_sprite_number = sprite_number;
+// Change the player's sprite image
+Player.prototype.changeCharacter = function(spriteNumber) {
+    // Use the defined spriteNumber if provided
+    if (spriteNumber != null) {
+        this.currentSpriteNumber = spriteNumber;
     } else {  // otherwise just toggle through the sprites
-        this.current_sprite_number = this.current_sprite_number + 1;
+        this.currentSpriteNumber = this.currentSpriteNumber + 1;
     }
 
     // If the curent value is beyone the range of
     // available sprites, default to 0.
-    if (this.current_sprite_number >= Board.PLAYER_SPRITES.length) {
-        this.current_sprite_number = 0;
+    if (this.currentSpriteNumber >= Board.PLAYER_SPRITES.length) {
+        this.currentSpriteNumber = 0;
     }
 
-    this.sprite = Board.PLAYER_SPRITES[this.current_sprite_number];
+    this.sprite = Board.PLAYER_SPRITES[this.currentSpriteNumber];
 }
 
-// Select a random sprite
+// Select a random sprite for player
 Player.prototype.changeToRandomCharacter = function() {
     // Choose a random sprite number based on the total
     // available sprites
-    var sprite_number = Math.floor(Math.random() *
+    var spriteNumber = Math.floor(Math.random() *
         Board.PLAYER_SPRITES.length);
 
-    this.changeCharacter(sprite_number);
+    this.changeCharacter(spriteNumber);
 }
 
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
 
-// Test enemies
+// Create enemies
 var allEnemies = [];
-var total_enemies = 5;
-for (var i = 0; i < total_enemies; i++) {
+var totalEnemies = 5;
+for (var i = 0; i < totalEnemies; i++) {
     var enemy = new Enemy();
     enemy.setRandomSpeed();
     enemy.setRandomRow();
     allEnemies.push(enemy);
 }
 
-// Test player
+// Create Player
 var player = new Player();
 
 // This listens for key presses and sends the keys to your
