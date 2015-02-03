@@ -136,6 +136,8 @@ var Engine = (function(global) {
             }
         }
 
+        // User Selector.png image as the player starting location.
+        ctx.drawImage(Resources.get('images/Selector.png'), 101 * 2, 83 * 4 + 44);
 
         renderEntities();
     }
@@ -176,7 +178,8 @@ var Engine = (function(global) {
         'images/char-cat-girl.png',
         'images/char-horn-girl.png',
         'images/char-pink-girl.png',
-        'images/char-princess-girl.png'
+        'images/char-princess-girl.png',
+        'images/Selector.png'
     ]);
     Resources.onReady(init);
 
