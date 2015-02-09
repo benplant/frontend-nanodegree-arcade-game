@@ -19,10 +19,10 @@ var Board = {
         'images/char-princess-girl.png']
 };
 
-// Enemies our player must avoid
+// Enemy class
+// Enemies our Player must avoid
 var Enemy = function() {
-    // The image/sprite for our enemies, this uses
-    // a helper we've provided to easily load images
+    // The image/sprite for our enemies
     this.sprite = 'images/enemy-bug.png';
 
     // Default min and max speeds
@@ -36,23 +36,12 @@ var Enemy = function() {
     this.returnToStart();
 }
 
-// Update this enemie's speed with a random speed between min and max
-// Parameter: min, the minimum value for the random speed
-// Parameter: max, the maximum value for the random speed
-Enemy.prototype.setRandomSpeed = function(min, max) {
-    // Use min and max if provided, otherwise use defaults
-    var minimum = min || this.minSpeed;
-    var maximum = max || this.maxSpeed;
-    this.speed = Math.floor(Math.random() * (maximum - minimum) + minimum);
+// Draw the enemy on the screen
+Enemy.prototype.render = function() {
+    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 }
 
-// Set a random row for this enemy to appear on
-Enemy.prototype.setRandomRow = function() {
-    var row = Math.floor(Math.random() * 3);
-    this.y = Board.Y_OFFSET + Board.BLOCK_HEIGHT * row;
-}
-
-// Update this enemy's position, required method for game
+// Update this enemy's position
 // Parameter: dt, a time delta between ticks
 Enemy.prototype.update = function(dt) {
     // You should multiply any movement by the dt parameter
@@ -66,12 +55,28 @@ Enemy.prototype.update = function(dt) {
     this.checkForCollisionWithRock();
 
     // If this enemy is off the board, return it to the start.
-    // Otherwise move forward based on this enemie's speed.
+    // Otherwise move forward based on this enemy's speed.
     if (this.x > Board.BOARD_WIDTH) {
         this.returnToStart();
     } else {
         this.x = this.x + dt * this.speed;
     }
+}
+
+// Update this enemy's speed with a random speed between min and max
+// Parameter: min, the minimum value for the random speed
+// Parameter: max, the maximum value for the random speed
+Enemy.prototype.setRandomSpeed = function(min, max) {
+    // Use min and max if provided, otherwise use defaults
+    var minimum = min || this.minSpeed;
+    var maximum = max || this.maxSpeed;
+    this.speed = Math.floor(Math.random() * (maximum - minimum) + minimum);
+}
+
+// Set a random row for this enemy to appear on
+Enemy.prototype.setRandomRow = function() {
+    var row = Math.floor(Math.random() * 3);
+    this.y = Board.Y_OFFSET + Board.BLOCK_HEIGHT * row;
 }
 
 // Check for collision with player
@@ -111,11 +116,6 @@ Enemy.prototype.checkForCollisionWithRock = function() {
     }
 }
 
-// Draw the enemy on the screen, required method for game
-Enemy.prototype.render = function() {
-    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-}
-
 // Return the Enemy to a starting position
 Enemy.prototype.returnToStart = function() {
     // Set the x position to just off the left of the board.
@@ -126,13 +126,18 @@ Enemy.prototype.returnToStart = function() {
     this.setRandomSpeed();
 }
 
-// Now write your own player class
-// This class requires an update(), render() and
-// a handleInput() method.
+// Player class
+// Player can move within board area
+// Collision with an enemy resets player to starting position
+// Player can throw rocks to kill enemies
+// User can toggle through different character sprite options
 var Player = function() {
     // Default player sprite settings
     this.sprite = 'images/char-boy.png';
     this.currentSpriteNumber = 0;
+
+    // Start with 3 lives
+    this.lives = 3;
 
     // The player can have a rock to throw
     this.rock = null;
@@ -144,7 +149,7 @@ var Player = function() {
     this.returnToStart();
 }
 
-// Update the player's position, required method for game
+// Update the player's position
 Player.prototype.update = function(dt) {
     // Check if the player has won
     if (this.hasWonTheGame()) {
@@ -157,7 +162,7 @@ Player.prototype.update = function(dt) {
     }
 }
 
-// Draw the player on the screen, required method for game
+// Draw the player on the screen
 Player.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 
@@ -209,15 +214,43 @@ Player.prototype.hasWonTheGame = function() {
 // Action to take when player wins
 Player.prototype.wonGame = function() {
     // Let user know they won the game
-    alert("You win!");
+    scoreboard.message = "---------- You Won!!!! :) ----------";
+    this.gameOver();
+}
+
+// Action to take when player loses
+Player.prototype.lostGame = function() {
+    // Let user know they lost the game
+    scoreboard.message = "---------- Sorry, You Lost :( ----------";
+    this.gameOver();
+}
+
+// Game Over Sequence
+Player.prototype.gameOver = function() {
     // Return player to start
     this.returnToStart();
+
+    // Clear all the enemies
+    allEnemies = [];
+
+    // Remove the key input listener to
+    // prevent player from moving after gameover.
+    document.removeEventListener('keyup', passKeyUpValue);
 }
 
 // Action to take on player's death
 Player.prototype.death = function() {
-    // Default is to just return the player to the start
+    // Take away a life
+    this.lives--;
+
+    scoreboard.message = "Game On --------- Get to the Water! --------- Lives: " + player.lives;
+
+    // Return player to the start
     this.returnToStart();
+
+    if (this.lives < 1) {
+        this.lostGame();
+    }
 }
 
 // Return player to starting position
@@ -229,8 +262,9 @@ Player.prototype.returnToStart = function() {
 }
 
 // Change the player's sprite image
+// Parameter: optional index of a specific sprite
 Player.prototype.changeCharacter = function(spriteNumber) {
-    // Use the defined spriteNumber if provided
+    // Use the input spriteNumber if provided
     if (spriteNumber != null) {
         this.currentSpriteNumber = spriteNumber;
     } else {  // otherwise just toggle through the sprites
@@ -265,7 +299,7 @@ Player.prototype.throwRock = function() {
     }
 }
 
-// Rocks our player can throw
+// A Rock our player can throw
 var Rock = function() {
     this.sprite = 'images/Rock.png';
 
@@ -275,7 +309,7 @@ var Rock = function() {
 }
 
 // Update the rock's position
-// Rock moves vertically until off the board
+// Rock moves upwards vertically
 Rock.prototype.update = function(dt) {
     // If the rock is off the board, remove it.
     // Otherwise move upwards based on speed.
@@ -289,6 +323,19 @@ Rock.prototype.update = function(dt) {
 // Draw the rock on the screen
 Rock.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+}
+
+// Scoreboard class
+// Display lives and messages
+var Scoreboard = function() {
+    this.message = "Game On --------- Get to the Water! --------- Lives: " + player.lives;
+}
+
+// Update the scoreboard
+Scoreboard.prototype.update = function() {
+    scoreboardElement.innerHTML = this.message +
+    "<br>Press 'C' to change character, Press 'Spacebar' to throw a rock" +
+    "<br>Reload the page to start over.";
 }
 
 // Now instantiate your objects.
@@ -308,9 +355,12 @@ for (var i = 0; i < totalEnemies; i++) {
 // Create Player
 var player = new Player();
 
-// This listens for key presses and sends the keys to your
-// Player.handleInput() method. You don't need to modify this.
-document.addEventListener('keyup', function(e) {
+// Create Scoreboard
+var scoreboard = new Scoreboard();
+
+// Had to add a named function to allow for call
+// to document.removeEventListener
+var passKeyUpValue = function(e) {
     var allowedKeys = {
         37: 'left',
         38: 'up',
@@ -321,4 +371,8 @@ document.addEventListener('keyup', function(e) {
     };
 
     player.handleInput(allowedKeys[e.keyCode]);
-});
+}
+
+// This listens for key presses and sends the keys to your
+// Player.handleInput() method.
+document.addEventListener('keyup', passKeyUpValue);
